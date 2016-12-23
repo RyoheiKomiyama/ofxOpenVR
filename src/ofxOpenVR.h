@@ -4,6 +4,8 @@
 #include <openvr.h>
 #include "CGLRenderModel.h"
 
+#include <glm/glm.hpp>
+
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 enum class ControllerRole

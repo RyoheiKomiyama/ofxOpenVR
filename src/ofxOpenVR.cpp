@@ -243,6 +243,10 @@ glm::mat4x4 ofxOpenVR::getControllerPose(vr::ETrackedControllerRole nController)
 		matrix = _mat4RightControllerPose;
 	}
 
+	cout << "matrix[0][0]:" << matrix[0][0] << ", matrix[0][1]:" << matrix[0][1] << ", matrix[0][0]:" << matrix[0][2] << endl;
+	cout << "matrix[1][0]:" << matrix[1][0] << ", matrix[1][1]:" << matrix[1][1] << ", matrix[1][0]:" << matrix[1][2] << endl;
+	cout << "matrix[2][0]:" << matrix[2][0] << ", matrix[2][1]:" << matrix[2][1] << ", matrix[2][0]:" << matrix[2][2] << endl;
+
 	return matrix;
 }
 
@@ -1077,7 +1081,9 @@ void ofxOpenVR::renderScene(vr::Hmd_Eye nEye)
 	// Draw the controllers
 	if (_bDrawControllers) {
 		_controllersTransformShader.begin();
-		_controllersTransformShader.setUniformMatrix4f("matrix", getCurrentViewProjectionMatrix(nEye), 1);
+
+		ofMatrix4x4 currentViewProjectionMatrix = &getCurrentViewProjectionMatrix(nEye)[0][0];
+		_controllersTransformShader.setUniformMatrix4f("matrix", currentViewProjectionMatrix, 1);
 		_controllersVbo.draw();
 		_controllersTransformShader.end();
 	}
@@ -1102,7 +1108,9 @@ void ofxOpenVR::renderScene(vr::Hmd_Eye nEye)
 				
 			glm::mat4x4 matMVP = _rmat4DevicePose[unTrackedDevice] * getCurrentViewProjectionMatrix(nEye);
 
-			_renderModelsShader.setUniformMatrix4f("matrix", matMVP, 1);
+			ofMatrix4x4 convertedMatMVP = &matMVP[0][0];
+
+			_renderModelsShader.setUniformMatrix4f("matrix", convertedMatMVP, 1);
 			_rTrackedDeviceToRenderModel[unTrackedDevice]->Draw();
 		}
 
