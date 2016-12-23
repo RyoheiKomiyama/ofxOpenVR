@@ -5,6 +5,8 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofSetVerticalSync(false);
+	ofSetLogLevel(OF_LOG_VERBOSE);
+	ofLogVerbose("HELLLOOOO");
 
 	bShowHelp = true;
 	bUseShader = true;
@@ -65,7 +67,11 @@ void ofApp::update(){
 	if (bIsLeftTriggerPressed) {
 		if (openVR.isControllerConnected(vr::TrackedControllerRole_LeftHand)) {
 			// Getting the translation component of the controller pose matrix
-			leftControllerPosition = openVR.getControllerPose(vr::TrackedControllerRole_LeftHand)[3];
+
+
+			glm::vec4 controllerPoseGlm = openVR.getControllerPose(vr::TrackedControllerRole_LeftHand)[3];
+			ofVec3f controllerPose = ofVec3f(controllerPoseGlm.x, controllerPoseGlm.y, controllerPoseGlm.z);
+			leftControllerPosition = controllerPose;
 
 			if (lastLeftControllerPosition.distance(leftControllerPosition) >= polylineResolution) {
 				leftControllerPolylines[leftControllerPolylines.size() - 1].lineTo(leftControllerPosition);
@@ -77,7 +83,9 @@ void ofApp::update(){
 	if (bIsRightTriggerPressed) {
 		if (openVR.isControllerConnected(vr::TrackedControllerRole_RightHand)) {
 			// Getting the translation component of the controller pose matrix
-			rightControllerPosition = openVR.getControllerPose(vr::TrackedControllerRole_RightHand)[3];
+			glm::vec4 controllerPoseGlm = openVR.getControllerPose(vr::TrackedControllerRole_RightHand)[3];
+			ofVec3f controllerPose = ofVec3f(controllerPoseGlm.x, controllerPoseGlm.y, controllerPoseGlm.z);
+			rightControllerPosition = controllerPose;
 
 			if (lastRightControllerPosition.distance(rightControllerPosition) >= polylineResolution) {
 				rightControllerPolylines[rightControllerPolylines.size() - 1].lineTo(rightControllerPosition);
@@ -112,7 +120,7 @@ void ofApp::draw(){
 void  ofApp::render(vr::Hmd_Eye nEye){
 	// Using a shader
 	if (bUseShader) {
-		ofMatrix4x4 currentViewProjectionMatrix = openVR.getCurrentViewProjectionMatrix(nEye);
+		ofMatrix4x4 currentViewProjectionMatrix = &openVR.getCurrentViewProjectionMatrix(nEye)[0][0];
 
 		shader.begin();
 		shader.setUniformMatrix4f("matrix", currentViewProjectionMatrix, 1);
@@ -130,9 +138,9 @@ void  ofApp::render(vr::Hmd_Eye nEye){
 	else {
 		ofPushView();
 		ofSetMatrixMode(OF_MATRIX_PROJECTION);
-		ofLoadMatrix(openVR.getCurrentProjectionMatrix(nEye));
+		ofLoadMatrix(&openVR.getCurrentProjectionMatrix(nEye)[0][0]);
 		ofSetMatrixMode(OF_MATRIX_MODELVIEW);
-		ofMatrix4x4 currentViewMatrixInvertY = openVR.getCurrentViewMatrix(nEye);
+		ofMatrix4x4 currentViewMatrixInvertY = &openVR.getCurrentViewMatrix(nEye)[0][0];
 		currentViewMatrixInvertY.scale(1.0f, -1.0f, 1.0f);
 		ofLoadMatrix(currentViewMatrixInvertY);
 
