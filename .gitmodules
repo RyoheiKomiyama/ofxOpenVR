@@ -1,6 +1,6 @@
 [submodule "libs/OpenVR"]
 	path = libs/OpenVR
-	url = https://github.com/ValveSoftware/openvr.git
+	url = git@github.com:RyoheiKomiyama/openvr.git
 [submodule "libs/glm"]
 	path = libs/glm
 	url = git@github.com:RyoheiKomiyama/glm.git
