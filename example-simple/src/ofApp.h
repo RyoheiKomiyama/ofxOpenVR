@@ -3,8 +3,15 @@
 #include "ofMain.h"
 #include "ofxOpenVR.h"
 
-//--------------------------------------------------------------
 class ofApp : public ofBaseApp {
+
+	ofxOpenVR openVR;
+	ofImage img;
+	ofBoxPrimitive box;
+	ofMatrix4x4 translateMatrix;
+	ofShader shader;
+	ofBoxPrimitive controllerBox;
+	ofShader controllersShader;
 
 public:
 	void setup();
@@ -25,18 +32,6 @@ public:
 	void gotMessage(ofMessage msg);
 
 	void render(vr::Hmd_Eye nEye);
-
 	void controllerEvent(ofxOpenVRControllerEventArgs& args);
 
-private:
-
-	ofxOpenVR _openVR;
-
-	ofImage _texture;
-	ofBoxPrimitive _box;
-	ofMatrix4x4 _translateMatrix;
-	ofShader _shader;
-
-	ofBoxPrimitive _controllerBox;
-	ofShader _controllersShader;
 };

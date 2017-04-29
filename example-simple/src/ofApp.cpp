@@ -1,162 +1,91 @@
 #include "ofApp.h"
 
-#define STRINGIFY(A) #A
-
 //--------------------------------------------------------------
-void ofApp::setup(){
+void ofApp::setup() {
 	ofSetVerticalSync(false);
 
-	// We need to pass the method we want ofxOpenVR to call when rending the scene
-	_openVR.setup(std::bind(&ofApp::render, this, std::placeholders::_1));
-	_openVR.setDrawControllers(true);
+	openVR.setup(std::bind(&ofApp::render, this, std::placeholders::_1));
+	openVR.setDrawControllers(true);
 
-	ofAddListener(_openVR.ofxOpenVRControllerEvent, this, &ofApp::controllerEvent);
+	ofAddListener(openVR.ofxOpenVRControllerEvent, this, &ofApp::controllerEvent);
 
-	_texture.load("of.png");
-	_texture.getTexture().setTextureWrap(GL_REPEAT, GL_REPEAT);
-	
-	_box.set(1);
-	_box.enableColors();
-	_box.mapTexCoordsFromTexture(_texture.getTexture());
-	
+	img.load("of.png");
+	img.getTexture().setTextureWrap(GL_REPEAT, GL_REPEAT);
+
+	box.set(1);
+	box.enableColors();
+	box.mapTexCoordsFromTexture(img.getTexture());
+
 	// Create a translation matrix to place the box in the space
-	_translateMatrix.translate(ofVec3f(0.0, .0, -2.0));
+	translateMatrix.translate(ofVec3f(0.0, .0, -2.0));
 
-	// Vertex shader source
-	string vertex;
-
-	vertex = "#version 150\n";
-	vertex += STRINGIFY(
-						uniform mat4 matrix;
-
-						in vec4  position;
-						in vec2  texcoord;
-
-						out vec2 texCoordVarying;
-
-						void main()
-						{
-							texCoordVarying = texcoord;
-							gl_Position = matrix * position;
-
-						}
-					);
-
-	// Fragment shader source
-	string fragment = "#version 150\n";
-	fragment += STRINGIFY(
-						uniform sampler2DRect baseTex;
-						
-						in vec2 texCoordVarying;
-
-						out vec4 fragColor;
-
-						vec2 texcoord0 = texCoordVarying;
-
-						void main() {
-							vec2 tx = texcoord0;
-							tx.y = 256.0 - tx.y;
-							vec4 image = texture(baseTex, tx);
-							fragColor = image;
-						}
-					);
-
-	// Shader
-	_shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex);
-	_shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment);
-	_shader.bindDefaults();
-	_shader.linkProgram();
-
-	// Controllers
-	_controllerBox.set(.1);
-	_controllerBox.enableColors();
-
-	// Vertex shader source
-	vertex = "#version 150\n";
-	vertex += STRINGIFY(
-						uniform mat4 matrix;
-
-						in vec4 position;
-						in vec3 v3ColorIn;
-
-						out vec4 v4Color;
-
-						void main() {
-							v4Color.xyz = v3ColorIn; v4Color.a = 1.0;
-							gl_Position = matrix * position;
-						}
-					);
-
-	// Fragment shader source
-	fragment = "#version 150\n";
-	fragment += STRINGIFY(
-						in vec4 v4Color;
-						out vec4 outputColor;
-						void main() {
-							outputColor = v4Color;
-						}
-					);
-
-	// Shader
-	_controllersShader.setupShaderFromSource(GL_VERTEX_SHADER, vertex);
-	_controllersShader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment);
-	_controllersShader.bindDefaults();
-	_controllersShader.linkProgram();
-
+	shader.load("shader/shader");
+	controllersShader.load("shader/controllers");
 }
 
 //--------------------------------------------------------------
 void ofApp::exit() {
-	ofRemoveListener(_openVR.ofxOpenVRControllerEvent, this, &ofApp::controllerEvent);
-
-	_openVR.exit();
+	ofRemoveListener(openVR.ofxOpenVRControllerEvent, this, &ofApp::controllerEvent);
+	openVR.exit();
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
-	_openVR.update();
+void ofApp::update() {
+	openVR.update();
 }
 
 //--------------------------------------------------------------
-void ofApp::draw(){
-	_openVR.render();
-
-	_openVR.renderDistortion();
-
-	_openVR.drawDebugInfo();
+void ofApp::draw() {
+	openVR.render();
+	openVR.renderDistortion();
+	openVR.drawDebugInfo();
 }
 
 //--------------------------------------------------------------
-void  ofApp::render(vr::Hmd_Eye nEye)
-{
-	// OF textured cube
-	glm::mat4x4 currentViewProjectionMatrix = _openVR.getCurrentViewProjectionMatrix(nEye);
-	glm::mat4x4 hdmPoseMat = _translateMatrix * currentViewProjectionMatrix;
+void ofApp::render(vr::Hmd_Eye nEye) {
 
-	_shader.begin();
-	_shader.setUniformMatrix4f("matrix", hdmPoseMat, 1);
-	_shader.setUniformTexture("baseTex", _texture, 0);
-	_box.draw();
-	_shader.end();
+	// oF textured cube
+	glm::mat4x4 cvpm = openVR.getCurrentViewProjectionMatrix(nEye);
+	ofMatrix4x4 currentViewProjectionMatrix(cvpm[0][0], cvpm[0][1], cvpm[0][2], cvpm[0][3],
+		cvpm[1][0], cvpm[1][1], cvpm[1][2], cvpm[1][3],
+		cvpm[2][0], cvpm[2][1], cvpm[2][2], cvpm[2][3],
+		cvpm[3][0], cvpm[3][1], cvpm[3][2], cvpm[3][3]);
+	ofMatrix4x4 hdmPoseMat = translateMatrix * currentViewProjectionMatrix;
+
+	shader.begin();
+	shader.setUniformMatrix4f("matrix", hdmPoseMat, 1);
+	shader.setUniformTexture("baseTex", img.getTexture(), 0);
+	box.draw();
+	shader.end();
 
 	// Left controller
-	if (_openVR.isControllerConnected(vr::TrackedControllerRole_LeftHand)) {
-		glm::mat4x4 leftControllerPoseMat = currentViewProjectionMatrix * _openVR.getControllerPose(vr::TrackedControllerRole_LeftHand);
+	if (openVR.isControllerConnected(vr::TrackedControllerRole_LeftHand)) {
+		glm::mat4x4 cpl = openVR.getControllerPose(vr::TrackedControllerRole_LeftHand);
+		ofMatrix4x4 controllerPoseLeft(cpl[0][0], cpl[0][1], cpl[0][2], cpl[0][3],
+			cpl[1][0], cpl[1][1], cpl[1][2], cpl[1][3],
+			cpl[2][0], cpl[2][1], cpl[2][2], cpl[2][3],
+			cpl[3][0], cpl[3][1], cpl[3][2], cpl[3][3]);
+		ofMatrix4x4 leftControllerPoseMat = currentViewProjectionMatrix * controllerPoseLeft;
 
-		_controllersShader.begin();
-		_controllersShader.setUniformMatrix4f("matrix", leftControllerPoseMat, 1);
-		_controllerBox.drawWireframe();
-		_controllersShader.end();
+		controllersShader.begin();
+		controllersShader.setUniformMatrix4f("matrix", leftControllerPoseMat, 1);
+		controllerBox.drawWireframe();
+		controllersShader.end();
 	}
 
 	// Right controller
-	if (_openVR.isControllerConnected(vr::TrackedControllerRole_RightHand)) {
-		glm::mat4x4 rightControllerPoseMat = currentViewProjectionMatrix * _openVR.getControllerPose(vr::TrackedControllerRole_RightHand);
+	if (openVR.isControllerConnected(vr::TrackedControllerRole_RightHand)) {
+		glm::mat4x4 cpr = openVR.getControllerPose(vr::TrackedControllerRole_RightHand);
+		ofMatrix4x4 controllerPoseRight(cpr[0][0], cpr[0][1], cpr[0][2], cpr[0][3],
+			cpr[1][0], cpr[1][1], cpr[1][2], cpr[1][3],
+			cpr[2][0], cpr[2][1], cpr[2][2], cpr[2][3],
+			cpr[3][0], cpr[3][1], cpr[3][2], cpr[3][3]);
+		ofMatrix4x4 rightControllerPoseMat = currentViewProjectionMatrix * controllerPoseRight;
 
-		_controllersShader.begin();
-		_controllersShader.setUniformMatrix4f("matrix", rightControllerPoseMat, 1);
-		_controllerBox.drawWireframe();
-		_controllersShader.end();
+		controllersShader.begin();
+		controllersShader.setUniformMatrix4f("matrix", rightControllerPoseMat, 1);
+		controllerBox.drawWireframe();
+		controllersShader.end();
 	}
 }
 
@@ -167,57 +96,56 @@ void ofApp::controllerEvent(ofxOpenVRControllerEventArgs& args)
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
-	_openVR.toggleGrid();
+void ofApp::keyPressed(int key) {
+	openVR.toggleGrid();
 }
 
 //--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
+void ofApp::keyReleased(int key) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
+void ofApp::mouseMoved(int x, int y) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
+void ofApp::mouseDragged(int x, int y, int button) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
+void ofApp::mousePressed(int x, int y, int button) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
+void ofApp::mouseReleased(int x, int y, int button) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
+void ofApp::mouseEntered(int x, int y) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
+void ofApp::mouseExited(int x, int y) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
+void ofApp::windowResized(int w, int h) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::gotMessage(ofMessage msg) {
 
 }
 
+//--------------------------------------------------------------
+void ofApp::dragEvent(ofDragInfo dragInfo) {
+
+}
