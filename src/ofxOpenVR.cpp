@@ -365,8 +365,9 @@ bool ofxOpenVR::init()
 			_pTrackedCamera->HasCamera(nDevice, &hascamera);
 			if (hascamera) _trackedCameraIndex = nDevice;
 		}
-		_pTrackedCamera->GetCameraFrameSize(_trackedCameraIndex, vr::VRTrackedCameraFrameType_Distorted,
+		_pTrackedCamera->GetCameraFrameSize(_trackedCameraIndex, vr::VRTrackedCameraFrameType_Undistorted,
 			&_nTrackedCameraFrameWidth, &_nTrackedCameraFrameHeight, &_nTrackedCameraFrameSize);
+		_pTrackedCamera->GetCameraIntrinsics(_trackedCameraIndex, vr::VRTrackedCameraFrameType_Undistorted, &_trackedCameraFocalLength, &_trackedCameraCenter);
 		_pTrackedCamera->AcquireVideoStreamingService(_trackedCameraIndex, &_trackedCameraHandle);
 		_trackedCameraPix.allocate(_nTrackedCameraFrameWidth, _nTrackedCameraFrameHeight, ofImageType::OF_IMAGE_COLOR_ALPHA);
 	}
@@ -841,7 +842,7 @@ void ofxOpenVR::updateDevicesMatrixPose()
 //--------------------------------------------------------------
 void ofxOpenVR::updateTrackedCamera()
 {
-	_pTrackedCamera->GetVideoStreamFrameBuffer(_trackedCameraHandle, vr::VRTrackedCameraFrameType_Distorted, _trackedCameraPix.getData(), _nTrackedCameraFrameSize, NULL, 0);
+	_pTrackedCamera->GetVideoStreamFrameBuffer(_trackedCameraHandle, vr::VRTrackedCameraFrameType_Undistorted, _trackedCameraPix.getData(), _nTrackedCameraFrameSize, NULL, 0);
 }
 
 //--------------------------------------------------------------

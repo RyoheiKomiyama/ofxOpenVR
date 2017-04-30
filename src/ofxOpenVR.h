@@ -80,6 +80,8 @@ public:
 	bool getRenderModelForTrackedDevices();
 
 	ofPixels getTrackedCameraPix() { return _trackedCameraPix; };
+	ofVec2f getTrackedCameraFocalLength() { return ofVec2f(_trackedCameraFocalLength.v[0], _trackedCameraFocalLength.v[1]); }
+	ofVec2f getTrackedCameraCenter() { return ofVec2f(_trackedCameraCenter.v[0], _trackedCameraCenter.v[1]); }
 
 	void toggleGrid(float transitionDuration = 2.0f);
 	void showGrid(float transitionDuration = 2.0f);
@@ -141,6 +143,8 @@ private:
 	vr::TrackedCameraHandle_t _trackedCameraHandle;
 	uint32_t _nTrackedCameraFrameWidth, _nTrackedCameraFrameHeight, _nTrackedCameraFrameSize;
 	ofPixels _trackedCameraPix;
+	vr::HmdVector2_t _trackedCameraFocalLength;
+	vr::HmdVector2_t _trackedCameraCenter;
 
 	int _iTrackedControllerCount;
 	int _iTrackedControllerCount_Last;
