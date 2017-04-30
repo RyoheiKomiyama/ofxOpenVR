@@ -79,6 +79,8 @@ public:
 	void setRenderModelForTrackedDevices(bool bRender);
 	bool getRenderModelForTrackedDevices();
 
+	ofPixels getTrackedCameraPix() { return _trackedCameraPix; };
+
 	void toggleGrid(float transitionDuration = 2.0f);
 	void showGrid(float transitionDuration = 2.0f);
 	void hideGrid(float transitionDuration = 2.0f);
@@ -134,6 +136,12 @@ private:
 	vr::TrackedDevicePose_t _rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	glm::mat4x4 _rmat4DevicePose[vr::k_unMaxTrackedDeviceCount];
 
+	vr::IVRTrackedCamera *_pTrackedCamera;
+	vr::TrackedDeviceIndex_t _trackedCameraIndex;
+	vr::TrackedCameraHandle_t _trackedCameraHandle;
+	uint32_t _nTrackedCameraFrameWidth, _nTrackedCameraFrameHeight, _nTrackedCameraFrameSize;
+	ofPixels _trackedCameraPix;
+
 	int _iTrackedControllerCount;
 	int _iTrackedControllerCount_Last;
 	int _iValidPoseCount;
@@ -176,6 +184,7 @@ private:
 	void setupCameras();
 
 	void updateDevicesMatrixPose();
+	void updateTrackedCamera();
 	void handleInput();
 	void processVREvent(const vr::VREvent_t & event);
 

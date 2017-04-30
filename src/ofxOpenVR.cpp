@@ -32,6 +32,7 @@ void ofxOpenVR::setup(std::function< void(vr::Hmd_Eye) > f)
 	_bIsGLInit = false;
 	_pHMD = NULL;
 	_pRenderModels = NULL;
+	_pTrackedCamera = NULL;
 	_bGlFinishHack = true;
 	_unLensVAO = 0;
 	_iTrackedControllerCount = 0;
@@ -124,6 +125,7 @@ void ofxOpenVR::update()
 	}
 
 	updateDevicesMatrixPose();
+	updateTrackedCamera();
 }
 
 //--------------------------------------------------------------
@@ -354,6 +356,23 @@ bool ofxOpenVR::init()
 
 	_strTrackingSystemName = getTrackedDeviceString(_pHMD, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_TrackingSystemName_String);
 	_strTrackingSystemModelNumber = getTrackedDeviceString(_pHMD, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_ModelNumber_String);
+
+	// TrackedCamera
+	_pTrackedCamera = (vr::IVRTrackedCamera *)vr::VR_GetGenericInterface(vr::IVRTrackedCamera_Version, &eError);
+	if (_pTrackedCamera) {
+		for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice) {
+			bool hascamera;
+			_pTrackedCamera->HasCamera(nDevice, &hascamera);
+			if (hascamera) _trackedCameraIndex = nDevice;
+		}
+		_pTrackedCamera->GetCameraFrameSize(_trackedCameraIndex, vr::VRTrackedCameraFrameType_Distorted,
+			&_nTrackedCameraFrameWidth, &_nTrackedCameraFrameHeight, &_nTrackedCameraFrameSize);
+		_pTrackedCamera->AcquireVideoStreamingService(_trackedCameraIndex, &_trackedCameraHandle);
+		_trackedCameraPix.allocate(_nTrackedCameraFrameWidth, _nTrackedCameraFrameHeight, ofImageType::OF_IMAGE_COLOR_ALPHA);
+	}
+	else {
+		cout << "Failed to access IVRTrackedCamera" << endl;
+	}
 
 	_fNearClip = 0.1f;
 	_fFarClip = 30.0f;
@@ -817,6 +836,12 @@ void ofxOpenVR::updateDevicesMatrixPose()
 	_strPoseClassesOSS << "Pose Count: " << _iValidPoseCount << endl;
     _strPoseClassesOSS << "Controller Count: " << _iTrackedControllerCount << endl;
 
+}
+
+//--------------------------------------------------------------
+void ofxOpenVR::updateTrackedCamera()
+{
+	_pTrackedCamera->GetVideoStreamFrameBuffer(_trackedCameraHandle, vr::VRTrackedCameraFrameType_Distorted, _trackedCameraPix.getData(), _nTrackedCameraFrameSize, NULL, 0);
 }
 
 //--------------------------------------------------------------
