@@ -368,6 +368,7 @@ bool ofxOpenVR::init()
 		_pTrackedCamera->GetCameraFrameSize(_trackedCameraIndex, vr::VRTrackedCameraFrameType_Undistorted,
 			&_nTrackedCameraFrameWidth, &_nTrackedCameraFrameHeight, &_nTrackedCameraFrameSize);
 		_pTrackedCamera->GetCameraIntrinsics(_trackedCameraIndex, vr::VRTrackedCameraFrameType_Undistorted, &_trackedCameraFocalLength, &_trackedCameraCenter);
+		_pTrackedCamera->GetCameraProjection(_trackedCameraIndex, vr::VRTrackedCameraFrameType_Undistorted, 0.01, 1000, &_trackedCameraProjectionMatrix);
 		_pTrackedCamera->AcquireVideoStreamingService(_trackedCameraIndex, &_trackedCameraHandle);
 		_trackedCameraPix.allocate(_nTrackedCameraFrameWidth, _nTrackedCameraFrameHeight, ofImageType::OF_IMAGE_COLOR_ALPHA);
 	}

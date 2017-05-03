@@ -82,6 +82,7 @@ public:
 	ofPixels getTrackedCameraPix() { return _trackedCameraPix; };
 	ofVec2f getTrackedCameraFocalLength() { return ofVec2f(_trackedCameraFocalLength.v[0], _trackedCameraFocalLength.v[1]); }
 	ofVec2f getTrackedCameraCenter() { return ofVec2f(_trackedCameraCenter.v[0], _trackedCameraCenter.v[1]); }
+	ofMatrix4x4 getTrackedCameraProjectionMatrix() {return ofMatrix4x4::getTransposedOf(ofMatrix4x4((float*)_trackedCameraProjectionMatrix.m));}
 
 	void toggleGrid(float transitionDuration = 2.0f);
 	void showGrid(float transitionDuration = 2.0f);
@@ -145,6 +146,7 @@ private:
 	ofPixels _trackedCameraPix;
 	vr::HmdVector2_t _trackedCameraFocalLength;
 	vr::HmdVector2_t _trackedCameraCenter;
+	vr::HmdMatrix44_t _trackedCameraProjectionMatrix;
 
 	int _iTrackedControllerCount;
 	int _iTrackedControllerCount_Last;
