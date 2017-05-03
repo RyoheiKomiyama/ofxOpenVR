@@ -218,6 +218,17 @@ glm::mat4x4 ofxOpenVR::getCurrentProjectionMatrix(vr::Hmd_Eye nEye)
 }
 
 //--------------------------------------------------------------
+void ofxOpenVR::setCurrentProjectionMatrix(ofMatrix4x4 mat)
+{
+	float* d = mat.getPtr();
+	glm::mat4x4 glmmat(d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7],
+		d[8], d[9], d[10], d[11], d[12], d[13], d[14], d[15]);
+	_mat4ProjectionLeft = glmmat;
+	_mat4ProjectionRight = glmmat;
+	_mat4ProjectionCenter = glmmat;
+}
+
+//--------------------------------------------------------------
 glm::mat4x4 ofxOpenVR::getCurrentViewMatrix(vr::Hmd_Eye nEye)
 {
 	glm::mat4x4 matV;

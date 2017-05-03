@@ -64,6 +64,7 @@ public:
 	glm::mat4x4 getHMDMatrixPoseEye(vr::Hmd_Eye nEye);
 	glm::mat4x4 getCurrentViewProjectionMatrix(vr::Hmd_Eye nEye);
 	glm::mat4x4 getCurrentProjectionMatrix(vr::Hmd_Eye nEye);
+	void setCurrentProjectionMatrix(ofMatrix4x4 mat);
 	glm::mat4x4 getCurrentViewMatrix(vr::Hmd_Eye nEye);
 
 	glm::mat4x4 getControllerPose(vr::ETrackedControllerRole nController);
