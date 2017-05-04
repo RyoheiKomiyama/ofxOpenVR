@@ -835,6 +835,12 @@ void ofxOpenVR::updateDevicesMatrixPose()
 					_mat4RightControllerPose = _rmat4DevicePose[nDevice];
 				}
 			}
+
+			// Store last generic tracker's ID
+			if (_pHMD->GetTrackedDeviceClass(nDevice) == vr::TrackedDeviceClass_GenericTracker) {
+				_lastGenericTrackerID = nDevice;
+				_mat4LastGenericTrackerPose = _rmat4DevicePose[nDevice];
+			}
 		}
 	}
 

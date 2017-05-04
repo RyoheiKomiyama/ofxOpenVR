@@ -85,6 +85,8 @@ public:
 	ofVec2f getTrackedCameraCenter() { return ofVec2f(_trackedCameraCenter.v[0], _trackedCameraCenter.v[1]); }
 	ofMatrix4x4 getTrackedCameraProjectionMatrix() {return ofMatrix4x4::getTransposedOf(ofMatrix4x4((float*)_trackedCameraProjectionMatrix.m));}
 
+	ofMatrix4x4 getLastGenericTrackerPose() { return ofMatrix4x4(&_mat4LastGenericTrackerPose[0][0]); }
+
 	void toggleGrid(float transitionDuration = 2.0f);
 	void showGrid(float transitionDuration = 2.0f);
 	void hideGrid(float transitionDuration = 2.0f);
@@ -174,6 +176,9 @@ private:
 	int _rightControllerDeviceID;
 	glm::mat4x4 _mat4LeftControllerPose;
 	glm::mat4x4 _mat4RightControllerPose;
+
+	int _lastGenericTrackerID;
+	glm::mat4x4 _mat4LastGenericTrackerPose;
 
 	bool _bDrawControllers;
 	ofVboMesh _controllersVbo;
