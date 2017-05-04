@@ -387,8 +387,8 @@ bool ofxOpenVR::init()
 		cout << "Failed to access IVRTrackedCamera" << endl;
 	}
 
-	_fNearClip = 0.1f;
-	_fFarClip = 30.0f;
+	_fNearClip = 0.01f;
+	_fFarClip = 1000.0f;
 
 	_bIsGLInit = initGL();
 	if (!_bIsGLInit)
