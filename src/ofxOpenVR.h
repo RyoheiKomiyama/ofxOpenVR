@@ -86,6 +86,9 @@ public:
 	ofMatrix4x4 getTrackedCameraProjectionMatrix() {return ofMatrix4x4::getTransposedOf(ofMatrix4x4((float*)_trackedCameraProjectionMatrix.m));}
 
 	ofMatrix4x4 getLastGenericTrackerPose() { return ofMatrix4x4(&_mat4LastGenericTrackerPose[0][0]); }
+	ofMatrix4x4 getHmdPose() { return ofMatrix4x4(&(glm::inverse(_mat4HMDPose))[0][0]); }
+	ofMatrix4x4 getLeftEyePose() { return ofMatrix4x4(&(glm::inverse(_mat4HMDPose)*(glm::inverse(_mat4eyePosLeft)))[0][0]); }
+	ofMatrix4x4 getRightEyePose() { return ofMatrix4x4(&(glm::inverse(_mat4HMDPose)*(glm::inverse(_mat4eyePosRight)))[0][0]); }
 
 	void toggleGrid(float transitionDuration = 2.0f);
 	void showGrid(float transitionDuration = 2.0f);
